@@ -6,7 +6,6 @@ import java.util.UUID;
 
 public record UserOrder(
   UUID userId,
-
   UUID orderId,
   List<Item> items,
   OffsetDateTime orderedAt) implements Partitionable {

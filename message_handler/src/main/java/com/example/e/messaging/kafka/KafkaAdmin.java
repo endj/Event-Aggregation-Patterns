@@ -1,4 +1,4 @@
-package com.example.e.messaging;
+package com.example.e.messaging.kafka;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
@@ -9,13 +9,13 @@ import io.vertx.kafka.admin.NewTopic;
 
 import java.util.List;
 
-import static com.example.e.messaging.Configuration.ADMIN_CONFIG;
-import static com.example.e.messaging.Configuration.PARTITIONS;
+import static com.example.e.messaging.kafka.Configuration.ADMIN_CONFIG;
+import static com.example.e.messaging.kafka.Configuration.PARTITIONS;
 
-public class KafkaAdmin extends AbstractVerticle implements AdminService {
+public class KafkaAdmin extends AbstractVerticle {
   private static final Logger log = LoggerFactory.getLogger(KafkaAdmin.class);
 
-  public static final String TEST_TOPIC = "test";
+  public static final String MESSAGE_TOPIC = "messages";
 
   KafkaAdminClient adminClient;
 
@@ -26,7 +26,7 @@ public class KafkaAdmin extends AbstractVerticle implements AdminService {
       .listTopics()
       .onSuccess(topics -> {
         log.info("Fetched topics " + topics);
-        if (topics.contains(TEST_TOPIC)) {
+        if (topics.contains(MESSAGE_TOPIC)) {
           startPromise.complete();
         } else {
           setupDefaultTopic(startPromise);
@@ -36,7 +36,7 @@ public class KafkaAdmin extends AbstractVerticle implements AdminService {
 
   private void setupDefaultTopic(Promise<Void> startPromise) {
     adminClient
-      .createTopics(List.of(new NewTopic(TEST_TOPIC, PARTITIONS, (short) 1)))
+      .createTopics(List.of(new NewTopic(MESSAGE_TOPIC, PARTITIONS, (short) 1)))
       .onSuccess(w -> startPromise.complete())
       .onFailure(startPromise::fail);
   }

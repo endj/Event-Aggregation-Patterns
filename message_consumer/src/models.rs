@@ -44,7 +44,7 @@ pub struct PaymentRefunded {
     #[serde(rename = "refundedAt")]
     pub refunded_at: String,
     #[serde(rename = "refundAmount")]
-    pub refound_amount: f64
+    pub refund_amount: f64
 }
 
 #[derive(Debug, Serialize, Deserialize)]

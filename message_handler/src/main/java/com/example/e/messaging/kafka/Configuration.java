@@ -1,4 +1,4 @@
-package com.example.e.messaging;
+package com.example.e.messaging.kafka;
 
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -7,7 +7,6 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 
 import java.util.Map;
-import java.util.Objects;
 
 import static java.lang.Integer.parseUnsignedInt;
 import static java.lang.System.getenv;

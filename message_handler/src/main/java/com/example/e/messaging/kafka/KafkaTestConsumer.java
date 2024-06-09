@@ -1,4 +1,4 @@
-package com.example.e.messaging;
+package com.example.e.messaging.kafka;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
@@ -11,8 +11,8 @@ import io.vertx.kafka.client.consumer.KafkaConsumerRecord;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-import static com.example.e.messaging.Configuration.CONSUMER_CONFIG;
-import static com.example.e.messaging.KafkaAdmin.TEST_TOPIC;
+import static com.example.e.messaging.kafka.Configuration.CONSUMER_CONFIG;
+import static com.example.e.messaging.kafka.KafkaAdmin.MESSAGE_TOPIC;
 
 public class KafkaTestConsumer extends AbstractVerticle {
   private static final Logger log = LoggerFactory.getLogger(KafkaTestConsumer.class);
@@ -22,7 +22,7 @@ public class KafkaTestConsumer extends AbstractVerticle {
   public void start(Promise<Void> startPromise) {
     consumer = KafkaConsumer.create(vertx, CONSUMER_CONFIG);
     consumer
-      .subscribe(TEST_TOPIC)
+      .subscribe(MESSAGE_TOPIC)
       .onSuccess(completeStartup(startPromise))
       .onFailure(startPromise::fail);
 

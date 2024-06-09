@@ -12,7 +12,7 @@ def do_post(json_payload):
     conn.request(method="POST", url="/msg", body=json_string, headers=headers)
     response = conn.getresponse()
     print(f"Status: {response.status}")
-    print(f'Response: {response.read().decode()}')
+    print(f'Response: {response.read().decode()}\n')
     conn.close()
 
 def random_id(): return str(uuid.uuid4())

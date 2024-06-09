@@ -1,7 +1,7 @@
 package com.example.e;
 
-import com.example.e.messaging.KafkaAdmin;
-import com.example.e.messaging.KafkaTestConsumer;
+import com.example.e.messaging.kafka.KafkaAdmin;
+import com.example.e.messaging.kafka.KafkaTestConsumer;
 import com.example.e.messaging.MessageSender;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
@@ -48,6 +48,7 @@ public class MainVerticle extends AbstractVerticle {
             log.info("Starting Http Server..");
             vertx
               .deployVerticle(http)
+              .onSuccess(__ -> log.info("Server Started"))
               .onFailure(shutdown());
           });
       });
@@ -62,7 +63,7 @@ public class MainVerticle extends AbstractVerticle {
 
   public static Handler<Throwable> shutdown() {
     return f -> {
-      log.error("Failed to bootstrap: " + f.getMessage());
+      log.error("Failed to bootstrap: " + f.getMessage() +", is Kafka Running?");
       System.exit(1);
     };
   }

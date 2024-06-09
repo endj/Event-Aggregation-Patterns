@@ -17,7 +17,6 @@ public class HttpVerticle extends AbstractVerticle {
   private static final Logger log = LoggerFactory.getLogger(HttpVerticle.class);
   private final MessageService messageService;
 
-
   public HttpVerticle(MessageService messageService) {
     this.messageService = messageService;
   }
