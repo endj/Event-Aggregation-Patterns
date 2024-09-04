@@ -30,9 +30,7 @@ public class KafkaTestConsumer extends AbstractVerticle {
   }
 
   private static Handler<KafkaConsumerRecord<String, String>> handleRecord() {
-    return record -> {
-      log.info("Processing key=" + record.key() + ",value=" + record.value() + ",partition=" + record.partition() + ",offset=" + record.offset());
-    };
+    return record -> log.info("Processing key=" + record.key() + ",value=" + record.value() + ",partition=" + record.partition() + ",offset=" + record.offset());
   }
 
   private Handler<Void> completeStartup(Promise<Void> startPromise) {

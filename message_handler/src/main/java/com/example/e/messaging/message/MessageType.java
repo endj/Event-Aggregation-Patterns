@@ -6,6 +6,7 @@ import com.example.e.messaging.message.payloads.UserCreated;
 import com.example.e.messaging.message.payloads.UserDeleted;
 import com.example.e.messaging.message.payloads.UserOrder;
 
+@SuppressWarnings("unused")
 public enum MessageType {
   USER_CREATED(UserCreated.class),
   USER_ORDER(UserOrder.class),

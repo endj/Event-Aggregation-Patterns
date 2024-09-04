@@ -1,6 +1,6 @@
 ## Build:
 ```sh
-./message_dispatcher/gradlew -p message_dispatcher clean build
+./message_handler/gradlew -p message_handler clean build
 cargo build --manifest-path message_consumer/Cargo.toml
 ```
 
@@ -11,9 +11,9 @@ cargo build --manifest-path message_consumer/Cargo.toml
 ```sh
 docker-compose -f docker/docker-compose.yaml up -d
 ```
-### Start Dispatcher
+### Start Handler
 ```sh
-./message_dispatcher/gradlew -p message_dispatcher run   
+./message_handler/gradlew -p message_handler run   
 ```
 ### Start Consumer
 ```sh

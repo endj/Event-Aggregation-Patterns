@@ -1,9 +1,11 @@
 use kafka::consumer::{Consumer, FetchOffset};
+use serde_json::Value;
 use std::collections::HashMap;
 use std::error::Error;
 mod models;
 use models::*;
 
+#[derive(Default)]
 struct Stats {
     item_order_count: HashMap<String, usize>,
     user_order_count: HashMap<String, usize>,
@@ -14,21 +16,11 @@ struct Stats {
 
 impl Stats {
     fn new() -> Self {
-        Self {
-            item_order_count: HashMap::new(),
-            user_order_count: HashMap::new(),
-            booked_balance: 0.0,
-            settled_balance: 0.0,
-            refunded_amount: 0.0,
-        }
+        Self::default()
     }
 
     fn reset(&mut self) {
-        self.item_order_count.clear();
-        self.user_order_count.clear();
-        self.booked_balance = 0.0;
-        self.settled_balance = 0.0;
-        self.refunded_amount = 0.0;
+        *self = Self::default()
     }
 
     fn log(&self) {
@@ -75,43 +67,48 @@ fn handle_message(value: &[u8], stats: &mut Stats) -> Result<(), Box<dyn Error>>
         .and_then(|t| t.as_str())
         .ok_or("Could not find type")?;
 
-    let payload = json.get("payload").ok_or("Missing payload")?;
+    let payload = json.get("payload").ok_or( "Missing payload")?;
 
     match message_type {
-        "USER_CREATED" => handle_user_creation(payload),
-        "USER_DELETED" => handle_delete_user(payload),
-        "USER_ORDER" => handle_user_order(payload, stats),
-        "USER_PAYMENT" => handle_user_purchase(payload, stats),
-        "USER_REFUND" => handle_user_refund(payload, stats),
+        "USER_CREATED" => handle_user_creation(payload)?,
+        "USER_DELETED" => handle_delete_user(payload)?,
+        "USER_ORDER" => handle_user_order(payload, stats)?,
+        "USER_PAYMENT" => handle_user_purchase(payload, stats)?,
+        "USER_REFUND" => handle_user_refund(payload, stats)?,
         _ => println!("Invalid type {}", message_type),
     }
     Ok(())
 }
-fn handle_user_creation(payload: &serde_json::value::Value) {
-    let created_user: UserCreated = serde_json::from_value(payload.clone()).unwrap();
+fn handle_user_creation(payload: &Value) -> Result<(), Box<dyn Error>> {
+    let _created_user: UserCreated = serde_json::from_value(payload.clone())?;
+    Ok(())
 }
 
-fn handle_delete_user(payload: &serde_json::value::Value) {
-    let delete_user: UserDeleted = serde_json::from_value(payload.clone()).unwrap();
+fn handle_delete_user(payload: &Value) -> Result<(), Box<dyn Error>> {
+    let _delete_user: UserDeleted = serde_json::from_value(payload.clone())?;
+    Ok(())
 }
 
-fn handle_user_order(payload: &serde_json::value::Value, stats: &mut Stats) {
-    let user_order: UserOrder = serde_json::from_value(payload.clone()).unwrap();
+fn handle_user_order(payload: &Value, stats: &mut Stats) -> Result<(), Box<dyn Error>> {
+    let user_order: UserOrder = serde_json::from_value(payload.clone())?;
 
     for item in user_order.items {
-        // count how many times an item id shows up 
         *stats.user_order_count.entry(user_order.user_id.clone()).or_insert(0) += 1;
         *stats.item_order_count.entry(item.id).or_insert(0) += 1;
         stats.booked_balance += item.cost;
     }
+
+    Ok(())
 }
 
-fn handle_user_purchase(payload: &serde_json::value::Value, stats: &mut Stats) {
-    let user_payment: PaymentConfirmed = serde_json::from_value(payload.clone()).unwrap();
+fn handle_user_purchase(payload: &Value, stats: &mut Stats) -> Result<(), Box<dyn Error>> {
+    let user_payment: PaymentConfirmed = serde_json::from_value(payload.clone())?;
     stats.settled_balance += user_payment.amount;
+    Ok(())
 }
 
-fn handle_user_refund(payload: &serde_json::value::Value, stats: &mut Stats) {
-    let user_refund: PaymentRefunded = serde_json::from_value(payload.clone()).unwrap();
+fn handle_user_refund(payload: &Value, stats: &mut Stats) -> Result<(), Box<dyn Error>> {
+    let user_refund: PaymentRefunded = serde_json::from_value(payload.clone())?;
     stats.refunded_amount += user_refund.refund_amount;
+    Ok(())
 }

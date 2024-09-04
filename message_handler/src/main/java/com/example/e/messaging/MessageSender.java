@@ -21,23 +21,28 @@ public class MessageSender extends AbstractVerticle implements MessageService {
 
   @Override
   public void start(Promise<Void> startPromise) {
-    setupProducer();
-    startPromise.complete();
-  }
-
-  private void setupProducer() {
     producer = KafkaProducer.create(vertx, PRODUCER_CONFIG);
+    startPromise.complete();
   }
 
   @Override
   public void sendMessage(Message message) {
     String payload = Json.toJson(message);
-    int id = ((Partitionable) message.payload()).id();
-    int partition = toPartition(id);
+    int partition = derivePartition(message);
     log.info("Sending message: [" + payload + "] to partition [" + partition + "]");
-    producer.send(KafkaProducerRecord.create(MESSAGE_TOPIC, null, payload, partition));
+    producer.send(KafkaProducerRecord.create(MESSAGE_TOPIC, null, payload, partition), res -> {
+      if (res.failed()) {
+        log.error("Failed to send message %s to partition %s".formatted(message, partition));
+      }
+    });
   }
 
+  private int derivePartition(Message message) {
+    var id = ((Partitionable) message.payload()).id();
+    return toPartition(id);
+  }
+
+  // Maps value to random partition in range [0, PARTITIONS - 1]
   private int toPartition(int id) {
     int m = id % PARTITIONS;
     return m + ((m >> 31) & PARTITIONS);

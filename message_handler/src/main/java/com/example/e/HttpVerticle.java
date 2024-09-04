@@ -2,6 +2,7 @@ package com.example.e;
 
 import com.example.e.messaging.message.Json;
 import com.example.e.messaging.message.Message;
+import com.example.e.messaging.message.payloads.Partitionable;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
@@ -43,9 +44,7 @@ public class HttpVerticle extends AbstractVerticle {
         log.info(string);
         var message = validateMsg(string);
         messageService.sendMessage(message);
-        ctx
-          .response()
-          .end(string);
+        ctx.response().end(string);
       } catch (DecodeException de) {
         String error = "%s got payload: %s".formatted(de.getMessage(), string);
         ctx.response().setStatusCode(400).end(error);
@@ -56,7 +55,11 @@ public class HttpVerticle extends AbstractVerticle {
   private Message validateMsg(String msg) {
     var message = Json.fromJson(msg, Message.class);
     var valid = Json.fromJson(Json.toJson(message.payload()), message.type().type);
-    return new Message(message.type(), valid);
+    if (valid instanceof Partitionable p) {
+      return new Message(message.type(), p);
+    } else {
+      throw new DecodeException("Bad type " + msg);
+    }
   }
 
 }
